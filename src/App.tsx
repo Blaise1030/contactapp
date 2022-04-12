@@ -11,8 +11,6 @@ import {
   useColorMode,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import MobileLayout from "./layout/Mobile";
 
 function App() {
   const { colorMode, toggleColorMode } = useColorMode();
