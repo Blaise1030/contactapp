@@ -11,6 +11,7 @@ import {
   DrawerOverlay,
   DrawerCloseButton,
   useBreakpointValue,
+  useToast,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useContext, useEffect, useState } from "react";
@@ -19,6 +20,7 @@ import { useContactRecord } from "../context/ContactRecordContext";
 const EditContactsDrawer = ({ onClose, isOpen, selectedId }: any) => {
   const drawerPosition = useBreakpointValue({ base: "bottom", lg: "right" });
   const inputSize = useBreakpointValue({ base: "md", lg: "lg" });
+  const toast = useToast();
   const { contacts, editContact, deleteContact } = useContext(useContactRecord);
   const [contact, setContact] = useState({
     phoneNumber: "",
@@ -35,11 +37,36 @@ const EditContactsDrawer = ({ onClose, isOpen, selectedId }: any) => {
   }, [selectedId, contacts]);
 
   const onContactsEdit = (e: any) => {
-    onClose();
     e.preventDefault();
+
+    if (e.target.name.value.length === 0) {
+      toast({
+        title: "Name cannot be empty",
+        position: "top",
+        status: "error",
+      });
+      return;
+    }
+
+    if (e.target.phoneNumber.value.length === 0) {
+      toast({
+        title: "Phone Number cannot be empty",
+        position: "top",
+        status: "error",
+      });
+      return;
+    }
+
     editContact(selectedId, {
       name: e.target.name.value,
       phoneNumber: e.target.phoneNumber.value,
+    });
+    onClose();
+
+    toast({
+      title: "Contact Edited",
+      position: "top",
+      status: "success",
     });
   };
 

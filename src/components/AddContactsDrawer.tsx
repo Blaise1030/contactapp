@@ -9,6 +9,7 @@ import {
   Input,
   DrawerFooter,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import { useContext } from "react";
 import { useContactRecord } from "../context/ContactRecordContext";
@@ -17,15 +18,41 @@ const AddContactsDrawer = ({ onClose, isOpen }: any) => {
   const { addContact } = useContext(useContactRecord);
   const drawerPosition = useBreakpointValue({ base: "bottom", lg: "right" });
   const inputSize = useBreakpointValue({ base: "md", lg: "lg" });
+  const toast = useToast();
 
   const onContactsAdd = (e: any) => {
-    onClose();
     e.preventDefault();
+
+    if (e.target.name.value.length === 0) {
+      toast({
+        title: "Name cannot be empty",
+        position: "top",
+        status: "error",
+      });
+      return;
+    }
+
+    if (e.target.phoneNumber.value.length === 0) {
+      toast({
+        title: "Phone Number cannot be empty",
+        position: "top",
+        status: "error",
+      });
+      return;
+    }
     addContact({
       phoneNumber: e.target.phoneNumber.value,
       name: e.target.name.value,
       id: Date.now().toString(),
     });
+
+    toast({
+      title: "Contact Added",
+      position: "top",
+      status: "success",
+    });
+
+    onClose();
   };
 
   return (
