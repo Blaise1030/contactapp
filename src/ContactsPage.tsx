@@ -23,6 +23,7 @@ import {
   AddIcon,
   SmallCloseIcon,
 } from "@chakra-ui/icons";
+import EmptyState from "./components/EmptyState";
 
 const ContactsPage = () => {
   const {
@@ -100,23 +101,27 @@ const ContactsPage = () => {
         )}
       </InputGroup>
 
-      <Box pt={2}>
-        {contacts
-          .filter(
-            ({ name, phoneNumber }: any) =>
-              name.toString().includes(searchText) ||
-              phoneNumber.toString().includes(searchText)
-          )
-          .map(({ name, phoneNumber, id }: any) => (
-            <ContactCards
-              inflateDrawer={onClickCards}
-              phoneNumber={phoneNumber}
-              name={name}
-              key={id}
-              id={id}
-            />
-          ))}
-      </Box>
+      {contacts.length === 0 ? (
+        <EmptyState onAddContact={onToggleAdd} />
+      ) : (
+        <Box pt={2}>
+          {contacts
+            .filter(
+              ({ name, phoneNumber }: any) =>
+                name.toString().includes(searchText) ||
+                phoneNumber.toString().includes(searchText)
+            )
+            .map(({ name, phoneNumber, id }: any) => (
+              <ContactCards
+                inflateDrawer={onClickCards}
+                phoneNumber={phoneNumber}
+                name={name}
+                key={id}
+                id={id}
+              />
+            ))}
+        </Box>
+      )}
     </>
   );
 };
