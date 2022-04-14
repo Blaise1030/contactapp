@@ -73,6 +73,11 @@ const EditContactsDrawer = ({ onClose, isOpen, selectedId }: any) => {
   const onContactsDelete = () => {
     deleteContact(selectedId);
     onClose();
+    toast({
+      title: "Contact Deleted",
+      position: "top",
+      status: "success",
+    });
   };
 
   return (
