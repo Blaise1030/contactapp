@@ -25,8 +25,10 @@ import ContactCards from "./components/ContactCard";
 import AddContactsDrawer from "./components/AddContactsDrawer";
 import EditContactsDrawer from "./components/EditContactsDrawer";
 import { useContactRecord } from "./context/ContactRecordContext";
+import { useNavigate } from "react-router-dom";
 
 const ContactsPage = () => {
+  const navigate = useNavigate();
   const {
     isOpen: isOpenAdd,
     onClose: onCloseAdd,
@@ -63,7 +65,12 @@ const ContactsPage = () => {
 
       {/* Navbar */}
       <HStack>
-        <IconButton icon={<ArrowBackIcon />} variant="solid" aria-label={""} />
+        <IconButton
+          onClick={() => navigate("/")}
+          icon={<ArrowBackIcon />}
+          variant="solid"
+          aria-label={""}
+        />
         <Spacer />
         <IconButton
           icon={colorMode === "dark" ? <MoonIcon /> : <SunIcon />}
