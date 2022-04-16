@@ -1,54 +1,93 @@
+import { createContext, useEffect, useState } from "react";
 import ContactModel from "../models/ContactModel";
-import { createContext, useState } from "react";
 
 export const useContactRecord = createContext<any>({});
 const ContactRecordContext = ({ children }: { children: any }) => {
-  const [contacts, setContact] = useState<ContactModel[]>([
-    // {
-    //   name: "Name",
-    //   phoneNumber: "0109696792",
-    //   id: "1",
-    // },
-    // {
-    //   name: "Name1",
-    //   phoneNumber: "0109696792",
-    //   id: "2",
-    // },
-    // {
-    //   name: "Name2",
-    //   phoneNumber: "0109696792",
-    //   id: "3",
-    // },
-  ]);
+  const [contacts, setContact] = useState<ContactModel[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const deleteContact = (id: string) => {
-    setContact((contacts) => contacts.filter((contact) => contact.id !== id));
+  useEffect(() => {
+    getAllContacts();
+  }, []);
+
+  const getAllContacts = async () => {
+    setIsLoading(true);
+    const endpoint = import.meta.env.VITE_APP_CONTACT_ENDPOINT + "contacts";
+    const res = await fetch(endpoint);
+    const { results } = await res.json();
+    setContact(results);
+    setIsLoading(false);
   };
 
-  const addContact = (newContact: ContactModel) => {
-    setContact((contacts) => {
-      const contactCopy = contacts;
-      contactCopy.push(newContact);
-      return contacts;
+  const editContactBE = async (contactData: ContactModel) => {
+    setIsLoading(true);
+    const endpoint = `${import.meta.env.VITE_APP_CONTACT_ENDPOINT}contact/${
+      contactData.id
+    }`;
+    const res = await fetch(endpoint, {
+      body: JSON.stringify(contactData),
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+    setIsLoading(false);
+    return res.json();
   };
 
-  const editContact = (id: string, field: Partial<ContactModel>) => {
-    setContact((contacts) =>
-      contacts.map((contact) => {
-        if (contact.id !== id) return contact;
-        return {
-          ...contact,
-          ...field,
-        };
-      })
-    );
+  const postContactBE = async (contactData: ContactModel) => {
+    setIsLoading(true);
+    const endpoint = `${import.meta.env.VITE_APP_CONTACT_ENDPOINT}contact`;
+    const res = await fetch(endpoint, {
+      body: JSON.stringify(contactData),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    setIsLoading(false);
+    return res.json();
+  };
+
+  const deleteContactBE = async (id: string) => {
+    setIsLoading(true);
+    const endpoint = `${
+      import.meta.env.VITE_APP_CONTACT_ENDPOINT
+    }contact/${id}`;
+    const res = await fetch(endpoint, {
+      method: "DELETE",
+    });
+    setIsLoading(false);
+    return res.json();
+  };
+
+  const deleteContact = async (id: string) =>
+    deleteContactBE(id)
+      .catch((e) => console.log(e))
+      .then((_) => setContact(contacts.filter((contact) => contact.id !== id)));
+
+  const addContact = async (newContact: ContactModel) =>
+    postContactBE(newContact)
+      .catch((e) => console.log(e))
+      .then(({ id }) => setContact([...contacts, { id, ...newContact }]));
+
+  const editContact = async (id: string, field: Partial<ContactModel>) => {
+    const [contact] = contacts.filter((c) => c.id === id);
+    const updated = { ...contact, ...field };
+    await editContactBE(updated)
+      .catch((e) => console.log(e))
+      .then(() =>
+        setContact(
+          contacts.map((contact) => (contact.id !== id ? contact : updated))
+        )
+      );
   };
 
   return (
     <useContactRecord.Provider
       value={{
         contacts,
+        isLoading,
         addContact,
         editContact,
         deleteContact,

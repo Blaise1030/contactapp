@@ -43,7 +43,6 @@ const AddContactsDrawer = ({ onClose, isOpen }: any) => {
     addContact({
       phoneNumber: e.target.phoneNumber.value,
       name: e.target.name.value,
-      id: Date.now().toString(),
     });
 
     toast({

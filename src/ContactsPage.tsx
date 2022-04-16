@@ -10,20 +10,21 @@ import {
   useBreakpointValue,
   InputGroup,
   InputRightElement,
+  Skeleton,
 } from "@chakra-ui/react";
+import {
+  MoonIcon,
+  SunIcon,
+  AddIcon,
+  ArrowBackIcon,
+  SmallCloseIcon,
+} from "@chakra-ui/icons";
 import { useContext, useState } from "react";
+import EmptyState from "./components/EmptyState";
 import ContactCards from "./components/ContactCard";
 import AddContactsDrawer from "./components/AddContactsDrawer";
 import EditContactsDrawer from "./components/EditContactsDrawer";
 import { useContactRecord } from "./context/ContactRecordContext";
-import {
-  ArrowBackIcon,
-  MoonIcon,
-  SunIcon,
-  AddIcon,
-  SmallCloseIcon,
-} from "@chakra-ui/icons";
-import EmptyState from "./components/EmptyState";
 
 const ContactsPage = () => {
   const {
@@ -39,10 +40,10 @@ const ContactsPage = () => {
   } = useDisclosure();
 
   const inputSize = useBreakpointValue({ base: "md", lg: "lg" });
+  const { contacts, isLoading } = useContext(useContactRecord);
   const { colorMode, toggleColorMode } = useColorMode();
-  const { contacts } = useContext(useContactRecord);
-  const [searchText, setOnSearch] = useState("");
   const [selectedId, setSelectedId] = useState();
+  const [searchText, setOnSearch] = useState("");
 
   const clearText = () => setOnSearch("");
   const onClickCards = (id: any) => {
@@ -101,7 +102,19 @@ const ContactsPage = () => {
         )}
       </InputGroup>
 
-      {contacts.length === 0 ? (
+      {isLoading ? (
+        <Box pt={2}>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((_, i) => (
+            <Skeleton
+              rounded={"md"}
+              width={"full"}
+              height={"80px"}
+              key={i}
+              my={2}
+            />
+          ))}
+        </Box>
+      ) : contacts.length === 0 ? (
         <EmptyState onAddContact={onToggleAdd} />
       ) : (
         <Box pt={2}>
