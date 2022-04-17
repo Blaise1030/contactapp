@@ -45,12 +45,20 @@ const ContactsPage = () => {
   const { contacts, isLoading } = useContext(useContactRecord);
   const { colorMode, toggleColorMode } = useColorMode();
   const [selectedId, setSelectedId] = useState();
-  const [searchText, setOnSearch] = useState("");
+  const [sText, setOnSearch] = useState("");
 
   const clearText = () => setOnSearch("");
   const onClickCards = (id: any) => {
     setSelectedId(id);
     onToggleEdit();
+  };
+
+  const filteredContacts = () => {
+    return contacts.filter(
+      ({ name, phoneNumber }: any) =>
+        phoneNumber.toString().includes(sText) ||
+        name.toString().includes(sText)
+    );
   };
 
   return (
@@ -92,12 +100,13 @@ const ContactsPage = () => {
       <InputGroup size={inputSize}>
         <Input
           onChange={(e) => setOnSearch(e.target.value)}
-          value={searchText}
+          disabled={contacts.length === 0}
+          value={sText}
           placeholder="Search"
           variant={"filled"}
           name="search"
         />
-        {searchText.length && (
+        {sText.length && (
           <InputRightElement>
             <IconButton
               size={"sm"}
@@ -109,37 +118,46 @@ const ContactsPage = () => {
         )}
       </InputGroup>
 
-      {isLoading ? (
+      {isLoading && (
         <Box pt={2}>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((_, i) => (
-            <Skeleton
-              rounded={"md"}
-              width={"full"}
-              height={"80px"}
-              key={i}
-              my={2}
-            />
-          ))}
-        </Box>
-      ) : contacts.length === 0 ? (
-        <EmptyState onAddContact={onToggleAdd} />
-      ) : (
-        <Box pt={2}>
-          {contacts
-            .filter(
-              ({ name, phoneNumber }: any) =>
-                name.toString().includes(searchText) ||
-                phoneNumber.toString().includes(searchText)
-            )
-            .map(({ name, phoneNumber, id }: any) => (
-              <ContactCards
-                inflateDrawer={onClickCards}
-                phoneNumber={phoneNumber}
-                name={name}
-                key={id}
-                id={id}
+          {Array(5)
+            .fill(0)
+            .map((_, i) => (
+              <Skeleton
+                rounded={"md"}
+                width={"full"}
+                height={"80px"}
+                key={i}
+                my={2}
               />
             ))}
+        </Box>
+      )}
+
+      {!filteredContacts().length && !isLoading && (
+        <EmptyState
+          description={
+            !sText.length ? "Start by adding contacts" : " Add Contacts"
+          }
+          title={!sText.length ? "Add the contact" : "Contact Not Found"}
+          onAddContact={() => {
+            onToggleAdd();
+            clearText();
+          }}
+        />
+      )}
+
+      {filteredContacts().length > 0 && !isLoading && (
+        <Box pt={2}>
+          {filteredContacts().map(({ name, phoneNumber, id }: any) => (
+            <ContactCards
+              inflateDrawer={onClickCards}
+              phoneNumber={phoneNumber}
+              name={name}
+              key={id}
+              id={id}
+            />
+          ))}
         </Box>
       )}
     </>
